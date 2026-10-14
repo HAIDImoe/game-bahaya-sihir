@@ -1,0 +1,473 @@
+```html
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misi Wira Akidah - Bahaya Sihir</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #102b24, #176b50);
+  color: #183b2d;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px;
+}
+
+.game {
+  background: #fffdf3;
+  width: 100%;
+  max-width: 650px;
+  padding: 28px;
+  border-radius: 22px;
+  box-shadow: 0 12px 35px #0005;
+}
+
+h1 {
+  text-align: center;
+  color: #176b50;
+  margin: 5px 0;
+}
+
+.subtitle {
+  text-align: center;
+  margin-bottom: 22px;
+  color: #666;
+}
+
+.badge {
+  text-align: center;
+  background: #e3f5e9;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 18px;
+  font-weight: bold;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.start-btn, .next-btn, .restart-btn {
+  background: #176b50;
+  color: white;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.answer {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: white;
+  border: 2px solid #d8e4dc;
+  margin: 10px 0;
+  color: #183b2d;
+}
+
+.answer:hover:not(:disabled) {
+  background: #e3f5e9;
+  border-color: #176b50;
+}
+
+.answer:disabled { cursor: default; }
+
+.correct {
+  background: #c9f3d5 !important;
+  border-color: #16833d !important;
+}
+
+.wrong {
+  background: #ffe0df !important;
+  border-color: #d33 !important;
+}
+
+.progress {
+  height: 10px;
+  background: #dfe8e1;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 15px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  background: #24a36a;
+  transition: width .3s;
+}
+
+.feedback {
+  padding: 13px;
+  border-radius: 10px;
+  background: #edf4ef;
+  margin-top: 15px;
+  line-height: 1.5;
+}
+
+.hidden { display: none; }
+
+.score {
+  text-align: center;
+  font-size: 27px;
+  font-weight: bold;
+  color: #176b50;
+  margin: 20px 0;
+}
+
+.small {
+  color: #666;
+  text-align: center;
+  font-size: 13px;
+  margin-top: 18px;
+}
+
+@media (max-width: 480px) {
+  .game { padding: 20px; }
+  h1 { font-size: 24px; }
+}
+</style>
+</head>
+
+<body>
+<main class="game">
+
+  <section id="home">
+    <div style="text-align:center;font-size:48px">🛡️</div>
+    <h1>Misi Wira Akidah</h1>
+    <p class="subtitle">Pendidikan Islam Tahun 5</p>
+
+    <div class="badge">📚 Topik: Bahaya Sihir</div>
+
+    <p>
+      Bersedia menjadi Wira Akidah? Jawab 10 soalan untuk
+      menguji pengetahuan kamu tentang bahaya sihir.
+    </p>
+
+    <p>⭐ Setiap soalan bernilai 10 markah.</p>
+    <p>🎯 Markah penuh: 100 markah.</p>
+
+    <button class="start-btn" onclick="startGame()">
+      MULA MISI 🚀
+    </button>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div style="display:flex;justify-content:space-between;gap:10px">
+      <strong id="questionNumber">Soalan 1/10</strong>
+      <strong id="scoreDisplay">Markah: 0</strong>
+    </div>
+
+    <div class="progress">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <h2 id="question"></h2>
+    <div id="answers"></div>
+    <div id="feedback" class="feedback hidden"></div>
+
+    <button id="nextButton" class="next-btn hidden"
+      onclick="nextQuestion()">Soalan Seterusnya ➜</button>
+  </section>
+
+  <section id="result" class="hidden">
+    <div style="text-align:center;font-size:55px" id="resultIcon">🏆</div>
+    <h1>Misi Selesai!</h1>
+    <p class="subtitle" id="resultMessage"></p>
+    <div class="score" id="finalScore"></div>
+    <div id="review"></div>
+    <button class="restart-btn" onclick="startGame()">
+      🔄 Main Semula
+    </button>
+  </section>
+
+  <p class="small">Misi Wira Akidah • Belajar sambil bermain</p>
+</main>
+
+<script>
+const questions = [
+  {
+    q: "1. Apakah maksud sihir secara umum?",
+    a: [
+      "Perbuatan luar biasa yang menggunakan helah atau amalan tertentu",
+      "Amalan bersukan setiap hari",
+      "Aktiviti membantu ibu bapa",
+      "Cara belajar membaca al-Quran"
+    ],
+    correct: 0,
+    explain: "Sihir melibatkan amalan tertentu yang menggunakan unsur tersembunyi atau bantuan yang dilarang oleh agama."
+  },
+  {
+    q: "2. Apakah hukum melakukan sihir dalam Islam?",
+    a: [
+      "Wajib",
+      "Sunat",
+      "Haram",
+      "Harus dalam semua keadaan"
+    ],
+    correct: 2,
+    explain: "Melakukan sihir adalah haram dan merupakan dosa besar."
+  },
+  {
+    q: "3. Mengapakah sihir boleh membahayakan akidah?",
+    a: [
+      "Kerana boleh melibatkan amalan syirik dan pergantungan kepada selain Allah",
+      "Kerana menyebabkan seseorang rajin belajar",
+      "Kerana membantu menjaga kesihatan",
+      "Kerana menggalakkan amalan bersedekah"
+    ],
+    correct: 0,
+    explain: "Sihir boleh merosakkan akidah apabila melibatkan syirik dan pergantungan kepada kuasa selain Allah."
+  },
+  {
+    q: "4. Siapakah yang wajib kita mohon pertolongan dan perlindungan?",
+    a: [
+      "Ahli sihir",
+      "Allah SWT",
+      "Bomoh yang menggunakan sihir",
+      "Orang yang mendakwa mengetahui perkara ghaib"
+    ],
+    correct: 1,
+    explain: "Umat Islam hendaklah memohon pertolongan dan perlindungan daripada Allah SWT."
+  },
+  {
+    q: "5. Apakah tindakan yang betul jika ditawarkan khidmat sihir?",
+    a: [
+      "Menerimanya secara rahsia",
+      "Mencubanya untuk berseronok",
+      "Menolaknya dan mendapatkan nasihat orang yang dipercayai",
+      "Mengajak rakan mencubanya"
+    ],
+    correct: 2,
+    explain: "Kita hendaklah menolak amalan sihir dan mendapatkan nasihat daripada ibu bapa atau guru yang dipercayai."
+  },
+  {
+    q: "6. Apakah amalan yang boleh dilakukan untuk memohon perlindungan Allah?",
+    a: [
+      "Membaca doa dan ayat al-Quran yang diajarkan",
+      "Mempercayai tangkal mempunyai kuasa sendiri",
+      "Meminta bantuan ahli sihir",
+      "Mengamalkan perkara khurafat"
+    ],
+    correct: 0,
+    explain: "Berdoa, berzikir dan membaca ayat al-Quran yang diajarkan merupakan amalan memohon perlindungan Allah."
+  },
+  {
+    q: "7. Apakah maksud syirik?",
+    a: [
+      "Bersyukur kepada Allah",
+      "Menyekutukan Allah dengan sesuatu yang lain",
+      "Menghormati ibu bapa",
+      "Membantu jiran"
+    ],
+    correct: 1,
+    explain: "Syirik ialah menyekutukan Allah SWT dengan sesuatu yang lain dalam perkara yang khusus bagi-Nya."
+  },
+  {
+    q: "8. Apakah yang perlu dilakukan jika rakan mempercayai amalan sihir?",
+    a: [
+      "Mengejeknya di hadapan kelas",
+      "Menyebarkan cerita tentangnya",
+      "Menasihatinya dengan baik dan meminta bantuan guru jika perlu",
+      "Mengikut amalan tersebut"
+    ],
+    correct: 2,
+    explain: "Nasihati rakan dengan baik dan dapatkan bantuan orang dewasa yang dipercayai."
+  },
+  {
+    q: "9. Mengapakah kita tidak boleh mempercayai tangkal mempunyai kuasa sendiri?",
+    a: [
+      "Kerana tangkal terlalu mahal",
+      "Kerana ia boleh menggalakkan kepercayaan yang bercanggah dengan akidah",
+      "Kerana tangkal mudah hilang",
+      "Kerana semua benda berwarna gelap dilarang"
+    ],
+    correct: 1,
+    explain: "Mempercayai sesuatu benda mempunyai kuasa tersendiri untuk memberi manfaat atau menolak mudarat boleh menjejaskan akidah."
+  },
+  {
+    q: "10. Apakah sikap yang patut diamalkan untuk menjaga akidah?",
+    a: [
+      "Mudah percaya kepada semua dakwaan ghaib",
+      "Mencuba semua amalan yang tidak diketahui",
+      "Berpegang teguh pada ajaran Islam dan merujuk guru apabila ragu-ragu",
+      "Meminta bantuan ahli sihir apabila menghadapi masalah"
+    ],
+    correct: 2,
+    explain: "Kita hendaklah berpegang pada ajaran Islam dan merujuk guru atau orang berilmu apabila mempunyai keraguan."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+let order = [];
+let wrongAnswers = [];
+
+function startGame() {
+  current = 0;
+  score = 0;
+  answered = false;
+  wrongAnswers = [];
+
+  order = questions.map((_, i) => i);
+
+  // Susun soalan secara rawak
+  order.sort(() => Math.random() - 0.5);
+
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+
+  const item = questions[order[current]];
+
+  document.getElementById("questionNumber").textContent =
+    `Soalan ${current + 1}/${questions.length}`;
+
+  document.getElementById("scoreDisplay").textContent =
+    `Markah: ${score}`;
+
+  document.getElementById("progressBar").style.width =
+    `${(current / questions.length) * 100}%`;
+
+  document.getElementById("question").textContent = item.q;
+
+  const answers = document.getElementById("answers");
+  answers.innerHTML = "";
+
+  document.getElementById("feedback").classList.add("hidden");
+  document.getElementById("nextButton").classList.add("hidden");
+
+  item.a.forEach((answer, index) => {
+    const button = document.createElement("button");
+    button.className = "answer";
+    button.textContent = String.fromCharCode(65 + index) + ". " + answer;
+    button.onclick = () => chooseAnswer(index, button);
+    answers.appendChild(button);
+  });
+}
+
+function chooseAnswer(index, button) {
+  if (answered) return;
+  answered = true;
+
+  const item = questions[order[current]];
+  const buttons = document.querySelectorAll(".answer");
+
+  buttons.forEach(b => b.disabled = true);
+
+  const feedback = document.getElementById("feedback");
+  feedback.classList.remove("hidden");
+
+  if (index === item.correct) {
+    score += 10;
+    button.classList.add("correct");
+    feedback.innerHTML = "✅ <strong>Tepat sekali!</strong><br>" + item.explain;
+  } else {
+    button.classList.add("wrong");
+    buttons[item.correct].classList.add("correct");
+
+    wrongAnswers.push({
+      question: item.q,
+      chosen: item.a[index],
+      correct: item.a[item.correct]
+    });
+
+    feedback.innerHTML =
+      "❌ <strong>Belum tepat.</strong><br>" +
+      "Jawapan yang betul: " + item.a[item.correct] +
+      "<br>" + item.explain;
+  }
+
+  document.getElementById("scoreDisplay").textContent =
+    `Markah: ${score}`;
+
+  document.getElementById("progressBar").style.width =
+    `${((current + 1) / questions.length) * 100}%`;
+
+  document.getElementById("nextButton").classList.remove("hidden");
+
+  document.getElementById("nextButton").textContent =
+    current === questions.length - 1
+      ? "Lihat Keputusan 🏆"
+      : "Soalan Seterusnya ➜";
+}
+
+function nextQuestion() {
+  if (!answered) return;
+
+  current++;
+
+  if (current < questions.length) {
+    showQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+
+  document.getElementById("finalScore").textContent =
+    `${score}/100 MARKAH`;
+
+  let message;
+  let icon;
+
+  if (score === 100) {
+    message = "Hebat! Kamu Wira Akidah yang cemerlang!";
+    icon = "🏆";
+  } else if (score >= 70) {
+    message = "Tahniah! Pengetahuan kamu sangat baik. Teruskan usaha!";
+    icon = "🌟";
+  } else if (score >= 50) {
+    message = "Bagus! Teruskan belajar untuk meningkatkan markah.";
+    icon = "💪";
+  } else {
+    message = "Jangan putus asa! Ulang kaji dan cuba lagi.";
+    icon = "📚";
+  }
+
+  document.getElementById("resultMessage").textContent = message;
+  document.getElementById("resultIcon").textContent = icon;
+
+  const review = document.getElementById("review");
+
+  if (wrongAnswers.length === 0) {
+    review.innerHTML =
+      "<div class='feedback'>🎉 Semua jawapan betul! Syabas!</div>";
+  } else {
+    review.innerHTML =
+      `<h3>Semak Jawapan (${wrongAnswers.length} kesilapan)</h3>` +
+      wrongAnswers.map((item, i) =>
+        `<div class="feedback">
+          <strong>${i + 1}. ${item.question}</strong><br>
+          Jawapan kamu: ${item.chosen}<br>
+          Jawapan betul: <strong>${item.correct}</strong>
+        </div>`
+      ).join("");
+  }
+}
+</script>
+</body>
+</html>
+```
